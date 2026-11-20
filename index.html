@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Fun for Kids</title>
+  <style>
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', 'Nunito', 'Rounded Mplus 1c', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #fff6db 0%, #ffe6f0 35%, #e6f5ff 70%, #e9ffe8 100%);
+      color: #2b2d42;
+      touch-action: manipulation;
+    }
+
+    /* Zwevende achtergrondcirkels */
+    .bg-bubbles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.72;
+      animation: floatBubble 9s ease-in-out infinite;
+    }
+
+    .b1 { width: 90px; height: 90px; background: #ff9ec4; top: 10%; left: 7%; animation-delay: 0s; }
+    .b2 { width: 110px; height: 110px; background: #8ed6ff; top: 18%; right: 6%; animation-delay: 1.5s; }
+    .b3 { width: 80px; height: 80px; background: #a8ebb0; bottom: 22%; left: 6%; animation-delay: 3s; }
+    .b4 { width: 95px; height: 95px; background: #ffe07d; bottom: 18%; right: 8%; animation-delay: 4.5s; }
+    .b5 { width: 55px; height: 55px; background: #d5b4ff; top: 55%; left: 16%; animation-delay: 2s; }
+    .b6 { width: 60px; height: 60px; background: #ffb88c; top: 45%; right: 18%; animation-delay: 5s; }
+
+    @keyframes floatBubble {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-16px) scale(1.04); }
+    }
+
+    /* Hoofdcontainer */
+    #app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: calc(12px + var(--safe-top)) calc(14px + var(--safe-right)) calc(12px + var(--safe-bottom)) calc(14px + var(--safe-left));
+    }
+
+    /* Top navigatiebalk */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 62px;
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      background: linear-gradient(180deg, #ffe36e 0%, #ffb703 100%);
+      box-shadow: 0 5px 0 #d48800, 0 8px 16px rgba(0, 0, 0, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+      position: relative;
+    }
+
+    .nav-btn::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 10px;
+      right: 10px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.55);
+      pointer-events: none;
+    }
+
+    .nav-btn:active {
+      transform: translateY(4px) scale(0.96);
+      box-shadow: 0 1px 0 #d48800, 0 4px 8px rgba(0, 0, 0, 0.14);
+    }
+
+    .nav-btn.hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Bottom-left instellingenknop */
+    .settings-fab {
+      position: fixed;
+      bottom: calc(16px + var(--safe-bottom));
+      left: calc(16px + var(--safe-left));
+      z-index: 25;
+    }
+
+    /* Logo bovenaan */
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 0 8px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 4px solid #fff;
+      border-radius: 999px;
+      padding: 6px 20px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-text {
+      font-size: clamp(1.3rem, 3.8vw, 2.2rem);
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .logo-fun { color: #ff4d8d; text-shadow: 0 2px 0 #fff, 0 4px 0 #c9184a; }
+    .logo-for { color: #ff9f1c; font-size: 0.65em; text-shadow: 0 2px 0 #fff; }
+    .logo-kids { color: #2ec4b6; text-shadow: 0 2px 0 #fff, 0 4px 0 #157f75; }
+
+    /* Schermen */
+    .screen {
+      display: none;
+      flex: 1;
+      width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 6px 4px 20px;
+    }
+
+    .screen.active {
+      display: flex;
+      animation: popIn 0.25s ease-out;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Hoofdmenu Grid (6 spellen) */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(14px, 2.8vw, 30px);
+      width: 100%;
+      max-width: 780px;
+      padding: 8px;
+      justify-items: center;
+    }
+
+    @media (max-width: 640px) {
+      .menu-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 12px;
+        max-width: 390px;
+      }
+    }
+
+    /* Glanzende ronde spelknoppen + pil-label */
+    .game-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      width: 100%;
+      max-width: 210px;
+    }
+
+    .game-card:active {
+      transform: scale(0.94);
+    }
+
+    .glossy-circle {
+      width: clamp(112px, 24vw, 158px);
+      height: clamp(112px, 24vw, 158px);
+      border-radius: 50%;
+      border: 6px solid #fff;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), inset 0 -8px 14px rgba(0, 0, 0, 0.16);
+      overflow: hidden;
+    }
+
+    .glossy-circle::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 16%;
+      right: 16%;
+      height: 36%;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.12) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .pill-label {
+      margin-top: -12px;
+      z-index: 3;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 3px solid #fff;
+      background: linear-gradient(180deg, #fffdf5 0%, #ffe9b8 100%);
+      font-weight: 800;
+      font-size: clamp(0.82rem, 2.2vw, 1.02rem);
+      color: #2b2d42;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.16);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Thema-kleuren per spel */
+    .theme-pink .glossy-circle { background: radial-gradient(circle at 35% 30%, #ff85b3, #e61c6c); }
+    .theme-pink .pill-label { border-color: #ff4d94; box-shadow: 0 4px 0 #c9185b; }
+
+    .theme-yellow .glossy-circle { background: radial-gradient(circle at 35% 30%, #ffe66d, #f7a400); }
+    .theme-yellow .pill-label { border-color: #ffb703; box-shadow: 0 4px 0 #c97a00; }
+
+    .theme-blue .glossy-circle { background: radial-gradient(circle at 35% 30%, #6ce5ff, #0088e8); }
+    .theme-blue .pill-label { border-color: #1ca3ff; box-shadow: 0 4px 0 #0066b2; }
+
+    .theme-green .glossy-circle { background: radial-gradient(circle at 35% 30%, #8bf26b, #28a745); }
+    .theme-green .pill-label { border-color: #38c958; box-shadow: 0 4px 0 #1e7e34; }
+
+    .theme-purple .glossy-circle { background: radial-gradient(circle at 35% 30%, #c78aff, #7b2cbf); }
+    .theme-purple .pill-label { border-color: #9d4edd; box-shadow: 0 4px 0 #5a189a; }
+
+    .theme-red .glossy-circle { background: radial-gradient(circle at 35% 30%, #ff7b7b, #d90429); }
+    .theme-red .pill-label { border-color: #ef233c; box-shadow: 0 4px 0 #9b001c; }
+
+    /* Submenu kader (zoals screenshot 2 & 3) */
+    .pink-panel {
+      background: rgba(255, 240, 247, 0.94);
+      border: 5px solid #ff4d94;
+      border-radius: 34px;
+      padding: clamp(18px, 3.5vw, 34px);
+      box-shadow: 0 12px 28px rgba(230, 28, 108, 0.16);
+      max-width: 720px;
+      width: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+    }
+
+    .sub-two-grid {
+      display: flex;
+      justify-content: center;
+      gap: clamp(20px, 5vw, 54px);
+      flex-wrap: wrap;
+    }
+
+    .coloring-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px 16px;
+      justify-items: center;
+    }
+
+    @media (min-width: 680px) {
+      .coloring-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    .coloring-thumb {
+      background: #fff !important;
+    }
+
+    /* Tekenen & Kleuren werkruimte */
+    .draw-workspace {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .canvas-frame {
+      position: relative;
+      background: #ffffff;
+      border: 5px solid #ff4d94;
+      border-radius: 26px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      width: 100%;
+      max-width: 680px;
+      flex: 1;
+      min-height: 240px;
+      touch-action: none;
+    }
+
+    #drawCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    #coloringOverlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    #coloringOverlay svg {
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+    }
+
+    .palette-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 8px 12px;
+      border-radius: 24px;
+      border: 3px solid #ff85b3;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      max-width: 720px;
+      width: 100%;
+    }
+
+    .color-swatch {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+      cursor: pointer;
+      transition: transform 0.12s;
+    }
+
+    .color-swatch.selected {
+      transform: scale(1.22);
+      border-color: #2b2d42;
+    }
+
+    .tool-chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 2px solid #ff4d94;
+      background: #fff0f7;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #2b2d42;
+    }
+
+    .tool-chip.active {
+      background: #ff4d94;
+      color: #fff;
+    }
+
+    /* Sleep- en Puzzel-arena's */
+    .game-board {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 30px;
+      border: 5px solid #fff;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+      padding: 16px;
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .board-title {
+      font-size: clamp(1.15rem, 3vw, 1.55rem);
+      font-weight: 900;
+      color: #2b2d42;
+      text-align: center;
+      margin: 0;
+    }
+
+    .targets-row, .draggables-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .drop-slot {
+      width: clamp(96px, 22vw, 136px);
+      height: clamp(96px, 22vw, 136px);
+      border-radius: 24px;
+      border: 4px dashed #adb5bd;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .drop-slot.highlight {
+      border-color: #2ec4b6;
+      background: #e0fbf8;
+      transform: scale(1.06);
+    }
+
+    .drop-slot.matched {
+      border-style: solid;
+      border-color: #38c958;
+      background: #e9ffe8;
+    }
+
+    .slot-silhouette {
+      opacity: 0.25;
+      filter: grayscale(100%) brightness(0.2);
+      pointer-events: none;
+    }
+
+    .slot-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #6c757d;
+      margin-top: 4px;
+    }
+
+    .drag-item {
+      width: clamp(86px, 20vw, 118px);
+      height: clamp(86px, 20vw, 118px);
+      border-radius: 22px;
+      background: #fff;
+      border: 4px solid #ffb703;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+      position: relative;
+      z-index: 10;
+    }
+
+    .drag-item.used {
+      opacity: 0.25;
+      pointer-events: none;
+      transform: scale(0.9);
+    }
+
+    .floating-clone {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%) scale(1.12);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.25);
+    }
+
+    /* Dierenpuzzel 2x2 */
+    .puzzle-layout {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      width: 100%;
+    }
+
+    .puzzle-board {
+      display: grid;
+      grid-template-columns: repeat(2, 120px);
+      grid-template-rows: repeat(2, 120px);
+      gap: 4px;
+      background: #0088e8;
+      padding: 6px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 136, 232, 0.25);
+    }
+
+    @media (max-width: 420px) {
+      .puzzle-board {
+        grid-template-columns: repeat(2, 102px);
+        grid-template-rows: repeat(2, 102px);
+      }
+    }
+
+    .puzzle-cell {
+      background: #e6f5ff;
+      border-radius: 12px;
+      border: 3px dashed #6ce5ff;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .puzzle-cell.filled {
+      border: none;
+      background: #fff;
+    }
+
+    .puzzle-tray {
+      display: grid;
+      grid-template-columns: repeat(2, 104px);
+      gap: 10px;
+    }
+
+    .puzzle-piece {
+      width: 104px;
+      height: 104px;
+      border-radius: 14px;
+      border: 3px solid #fff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+      overflow: hidden;
+      background: #fff;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .puzzle-piece.used {
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    /* Memory Grid */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(66px, 104px));
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .mem-card {
+      aspect-ratio: 1 / 1;
+      border-radius: 20px;
+      border: 4px solid #fff;
+      background: linear-gradient(135deg, #8bf26b, #28a745);
+      box-shadow: 0 6px 0 #1e7e34, 0 8px 14px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 2rem;
+      transition: transform 0.2s;
+    }
+
+    .mem-card.flipped, .mem-card.matched {
+      background: #ffffff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      border-color: #38c958;
+    }
+
+    .mem-card.matched {
+      background: #e9ffe8;
+      transform: scale(0.97);
+    }
+
+    /* Ballonnen poppen */
+    #balloonArena {
+      position: relative;
+      width: 100%;
+      max-width: 760px;
+      height: 64dvh;
+      min-height: 320px;
+      background: linear-gradient(180deg, #cceeff 0%, #f0f9ff 100%);
+      border: 5px solid #fff;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    }
+
+    .balloon-hud {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .hud-pill {
+      background: rgba(255,255,255,0.92);
+      border: 3px solid #ef233c;
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-weight: 900;
+      font-size: 1.05rem;
+      color: #d90429;
+    }
+
+    .balloon {
+      position: absolute;
+      width: 78px;
+      height: 94px;
+      border-radius: 50% 50% 50% 50% / 45% 45% 55% 55%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      box-shadow: inset -8px -10px 16px rgba(0,0,0,0.18), inset 8px 10px 14px rgba(255,255,255,0.55);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .balloon::after {
+      content: '';
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      width: 2px;
+      height: 24px;
+      background: rgba(0,0,0,0.25);
+    }
+
+    /* Instellingen modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.38);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #fff;
+      border: 5px solid #ffb703;
+      border-radius: 30px;
+      padding: 24px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.24);
+    }
+
+    .big-action-btn {
+      margin-top: 14px;
+      padding: 12px 24px;
+      border-radius: 999px;
+      border: 4px solid #fff;
+      background: linear-gradient(180deg, #52e577, #28a745);
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.05rem;
+      box-shadow: 0 5px 0 #1e7e34;
+      cursor: pointer;
+    }
+
+    /* Confetti canvas */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-bubbles">
+    <div class="bubble b1"></div>
+    <div class="bubble b2"></div>
+    <div class="bubble b3"></div>
+    <div class="bubble b4"></div>
+    <div class="bubble b5"></div>
+    <div class="bubble b6"></div>
+  </div>
+
+  <canvas id="confettiCanvas"></canvas>
+
+  <div id="app">
+    <!-- Top navigatiebalk -->
+    <header class="top-bar">
+      <button id="btnBack" class="nav-btn hidden" aria-label="Terug" onclick="goBack()">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1d6fd8" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <div class="logo-wrap">
+        <div class="logo-badge">
+          <span style="font-size:1.5rem;">🐘</span>
+          <div class="logo-text">
+            <span class="logo-fun">Fun</span>
+            <span class="logo-for">for</span>
+            <span class="logo-kids">Kids</span>
+          </div>
+          <span style="font-size:1.5rem;">🦊</span>
+        </div>
+      </div>
+
+      <button id="btnHome" class="nav-btn" aria-label="Startscherm" onclick="goHome()">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#1d6fd8" stroke="#1d6fd8" stroke-width="2" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- SCHERM 1: HOOFDMENU -->
+    <main id="screen-home" class="screen active">
+      <div class="menu-grid">
+        <!-- 1. Tekenen & kleuren -->
+        <div class="game-card theme-pink" onclick="openScreen('screen-draw-menu')">
+          <div class="glossy-circle">
+            <svg width="96" height="96" viewBox="0 0 100 100">
+              <circle cx="50" cy="48" r="28" fill="#ffd6a5" stroke="#5c3a21" stroke-width="3"/>
+              <polygon points="26,28 34,10 44,24" fill="#ffb703" stroke="#5c3a21" stroke-width="3"/>
+              <polygon points="74,28 66,10 56,24" fill="#ffb703" stroke="#5c3a21" stroke-width="3"/>
+              <circle cx="40" cy="45" r="4" fill="#2b2d42"/>
+              <circle cx="60" cy="45" r="4" fill="#2b2d42"/>
+              <polygon points="47,53 53,53 50,57" fill="#ff4d8d"/>
+              <rect x="24" y="72" width="52" height="14" rx="7" fill="#ff4d8d" stroke="#fff" stroke-width="2"/>
+              <circle cx="36" cy="79" r="4" fill="#ffe66d"/>
+              <circle cx="50" cy="79" r="4" fill="#4cc9f0"/>
+              <circle cx="64" cy="79" r="4" fill="#80ed99"/>
+            </svg>
+          </div>
+          <div class="pill-label">Tekenen &amp; kleuren</div>
+        </div>
+
+        <!-- 2. Versleep dieren -->
+        <div class="game-card theme-yellow" onclick="startDragAnimals()">
+          <div class="glossy-circle">
+            <svg width="96" height="96" viewBox="0 0 100 100">
+              <ellipse cx="50" cy="54" rx="26" ry="22" fill="#adb5bd" stroke="#495057" stroke-width="3"/>
+              <circle cx="26" cy="46" r="13" fill="#ced4da" stroke="#495057" stroke-width="3"/>
+              <circle cx="74" cy="46" r="13" fill="#ced4da" stroke="#495057" stroke-width="3"/>
+              <path d="M50 58 Q52 78 66 74" fill="none" stroke="#495057" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="42" cy="46" r="3.5" fill="#2b2d42"/>
+              <circle cx="58" cy="46" r="3.5" fill="#2b2d42"/>
+            </svg>
+          </div>
+          <div class="pill-label">Versleep dieren</div>
+        </div>
+
+        <!-- 3. Dierenpuzzel -->
+        <div class="game-card theme-blue" onclick="startAnimalPuzzle()">
+          <div class="glossy-circle">
+            <svg width="96" height="96" viewBox="0 0 100 100">
+              <rect x="20" y="20" width="28" height="28" rx="6" fill="#ffb703" stroke="#fff" stroke-width="2.5"/>
+              <rect x="52" y="20" width="28" height="28" rx="6" fill="#ff4d8d" stroke="#fff" stroke-width="2.5"/>
+              <rect x="20" y="52" width="28" height="28" rx="6" fill="#38c958" stroke="#fff" stroke-width="2.5"/>
+              <rect x="52" y="52" width="28" height="28" rx="6" fill="#9d4edd" stroke="#fff" stroke-width="2.5"/>
+              <circle cx="50" cy="50" r="18" fill="#ffe07d" stroke="#8d5524" stroke-width="3"/>
+              <circle cx="44" cy="47" r="2.8" fill="#2b2d42"/>
+              <circle cx="56" cy="47" r="2.8" fill="#2b2d42"/>
+              <polygon points="48,52 52,52 50,55" fill="#d90429"/>
+            </svg>
+          </div>
+          <div class="pill-label">Dierenpuzzel</div>
+        </div>
+
+        <!-- 4. Memory -->
+        <div class="game-card theme-green" onclick="startMemory()">
+          <div class="glossy-circle">
+            <svg width="96" height="96" viewBox="0 0 100 100">
+              <rect x="18" y="24" width="38" height="46" rx="8" transform="rotate(-10 37 47)" fill="#fff" stroke="#ff9f1c" stroke-width="3.5"/>
+              <circle cx="35" cy="46" r="11" fill="#ff7b00"/>
+              <rect x="44" y="28" width="38" height="46" rx="8" transform="rotate(8 63 51)" fill="#fff" stroke="#2ec4b6" stroke-width="3.5"/>
+              <circle cx="63" cy="50" r="11" fill="#ff4d8d"/>
+            </svg>
+          </div>
+          <div class="pill-label">Memory</div>
+        </div>
+
+        <!-- 5. Versleep in huis -->
+        <div class="game-card theme-purple" onclick="startDragHouse()">
+          <div class="glossy-circle">
+            <svg width="96" height="96" viewBox="0 0 100 100">
+              <rect x="20" y="36" width="60" height="24" rx="8" fill="#3a86ff" stroke="#1d3557" stroke-width="3"/>
+              <rect x="14" y="46" width="12" height="24" rx="5" fill="#4cc9f0" stroke="#1d3557" stroke-width="3"/>
+              <rect x="74" y="46" width="12" height="24" rx="5" fill="#4cc9f0" stroke="#1d3557" stroke-width="3"/>
+              <rect x="22" y="56" width="56" height="14" rx="4" fill="#4895ef" stroke="#1d3557" stroke-width="3"/>
+              <line x1="26" y1="70" x2="26" y2="78" stroke="#5c3a21" stroke-width="4" stroke-linecap="round"/>
+              <line x1="74" y1="70" x2="74" y2="78" stroke="#5c3a21" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="pill-label">Versleep in huis</div>
+        </div>
+
+        <!-- 6. Ballonnen poppen -->
+        <div class="game-card theme-red" onclick="startBalloons()">
+          <div class="glossy-circle">
+            <svg width="96" height="96" viewBox="0 0 100 100">
+              <ellipse cx="36" cy="42" rx="16" ry="20" fill="#ffbe0b" stroke="#fff" stroke-width="2.5"/>
+              <ellipse cx="62" cy="36" rx="16" ry="20" fill="#38c958" stroke="#fff" stroke-width="2.5"/>
+              <text x="62" y="43" text-anchor="middle" font-size="20" font-weight="900" fill="#fff">4</text>
+              <ellipse cx="48" cy="60" rx="15" ry="18" fill="#4cc9f0" stroke="#fff" stroke-width="2.5"/>
+            </svg>
+          </div>
+          <div class="pill-label">Ballonnen poppen</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- SCHERM 2: SUBMENU TEKENEN & KLEUREN -->
+    <section id="screen-draw-menu" class="screen">
+      <div class="pink-panel">
+        <div class="sub-two-grid">
+          <div class="game-card theme-pink" onclick="openCanvasMode(null)">
+            <div class="glossy-circle">
+              <svg width="96" height="96" viewBox="0 0 100 100">
+                <ellipse cx="48" cy="54" rx="30" ry="22" fill="#f4a261" stroke="#6f4518" stroke-width="3"/>
+                <circle cx="34" cy="48" r="5" fill="#e63946"/>
+                <circle cx="48" cy="42" r="5" fill="#ffb703"/>
+                <circle cx="62" cy="48" r="5" fill="#2a9d8f"/>
+                <circle cx="44" cy="62" r="5" fill="#4361ee"/>
+                <line x1="56" y1="62" x2="78" y2="24" stroke="#8d5524" stroke-width="6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="pill-label">Vrij tekenen</div>
+          </div>
+
+          <div class="game-card theme-pink" onclick="openScreen('screen-coloring-list')">
+            <div class="glossy-circle">
+              <svg width="96" height="96" viewBox="0 0 100 100">
+                <rect x="28" y="22" width="44" height="54" rx="6" fill="#fff" stroke="#2b2d42" stroke-width="3"/>
+                <circle cx="50" cy="46" r="13" fill="none" stroke="#2b2d42" stroke-width="2.5"/>
+                <circle cx="46" cy="44" r="2" fill="#2b2d42"/>
+                <circle cx="54" cy="44" r="2" fill="#2b2d42"/>
+                <rect x="18" y="44" width="9" height="34" rx="3" transform="rotate(-15 22 60)" fill="#e63946"/>
+                <rect x="72" y="44" width="9" height="34" rx="3" transform="rotate(15 76 60)" fill="#3a86ff"/>
+              </svg>
+            </div>
+            <div class="pill-label">Kleurplaten</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHERM 3: KIES EEN KLEURPLAAT (ALLE 8 DIEREN) -->
+    <section id="screen-coloring-list" class="screen">
+      <div class="pink-panel">
+        <div id="coloringListGrid" class="coloring-grid"></div>
+      </div>
+    </section>
+
+    <!-- SCHERM 4: TEKEN- & KLEURPLAAT CANVAS -->
+    <section id="screen-canvas" class="screen">
+      <div class="draw-workspace">
+        <div class="canvas-frame" id="canvasFrame">
+          <canvas id="drawCanvas"></canvas>
+          <div id="coloringOverlay"></div>
+        </div>
+        <div class="palette-bar" id="paletteBar"></div>
+      </div>
+    </section>
+
+    <!-- SCHERM 5: VERSLEEP DIEREN -->
+    <section id="screen-drag-animals" class="screen">
+      <div class="game-board">
+        <h2 class="board-title">Sleep elk dier naar zijn schaduw!</h2>
+        <div id="animalTargets" class="targets-row"></div>
+        <div id="animalDraggables" class="draggables-row"></div>
+      </div>
+    </section>
+
+    <!-- SCHERM 6: DIERENPUZZEL -->
+    <section id="screen-puzzle" class="screen">
+      <div class="game-board">
+        <h2 class="board-title" id="puzzleTitle">Maak de dierenpuzzel compleet!</h2>
+        <div class="puzzle-layout">
+          <div id="puzzleBoard" class="puzzle-board"></div>
+          <div id="puzzleTray" class="puzzle-tray"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHERM 7: MEMORY -->
+    <section id="screen-memory" class="screen">
+      <div class="game-board">
+        <h2 class="board-title">Zoek twee dezelfde dieren!</h2>
+        <div id="memoryGrid" class="memory-grid"></div>
+      </div>
+    </section>
+
+    <!-- SCHERM 8: VERSLEEP IN HUIS -->
+    <section id="screen-drag-house" class="screen">
+      <div class="game-board">
+        <h2 class="board-title">Zet de meubels op de juiste plek in huis!</h2>
+        <div id="houseTargets" class="targets-row"></div>
+        <div id="houseDraggables" class="draggables-row"></div>
+      </div>
+    </section>
+
+    <!-- SCHERM 9: BALLONNEN POPPEN -->
+    <section id="screen-balloons" class="screen">
+      <div id="balloonArena">
+        <div class="balloon-hud">
+          <div class="hud-pill" id="balloonTargetPill">Tik op cijfer: 1</div>
+          <div class="hud-pill" id="balloonScorePill">Score: 0</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Instellingenknop linksonder -->
+  <button class="nav-btn settings-fab" aria-label="Instellingen" onclick="toggleSettings(true)">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1d6fd8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3.5"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/>
+    </svg>
+  </button>
+
+  <!-- Instellingen Modal -->
+  <div id="settingsModal" class="modal-backdrop" onclick="if(event.target===this)toggleSettings(false)">
+    <div class="modal-card">
+      <h2 style="margin-top:0; color:#ff4d8d;">Instellingen</h2>
+      <p style="font-weight:700;">Geluidseffecten</p>
+      <button id="btnToggleSound" class="big-action-btn" onclick="toggleSound()">Geluid: AAN 🔊</button>
+      <br/>
+      <button class="big-action-btn" style="background:linear-gradient(180deg,#ffe36e,#ffb703); color:#2b2d42; box-shadow:0 5px 0 #d48800;" onclick="toggleSettings(false)">Sluiten</button>
+    </div>
+  </div>
+
+  <script>
+    /* ================= WEB AUDIO API (iPhone Safari Safe) ================= */
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function unlockAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+    }
+
+    document.addEventListener('pointerdown', unlockAudio, { passive: true });
+    document.addEventListener('touchstart', unlockAudio, { passive: true });
+
+    function playTone(freq, type = 'sine', duration = 0.14, gainVal = 0.18, delay = 0) {
+      if (!soundEnabled) return;
+      unlockAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime + delay;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+    }
+
+    function playPop() {
+      playTone(520, 'sine', 0.08, 0.22);
+      playTone(780, 'triangle', 0.09, 0.18, 0.04);
+    }
+
+    function playSuccess() {
+      playTone(523.25, 'triangle', 0.14, 0.2, 0);
+      playTone(659.25, 'triangle', 0.14, 0.2, 0.1);
+      playTone(783.99, 'triangle', 0.22, 0.22, 0.2);
+    }
+
+    function playFanfare() {
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+        playTone(f, 'triangle', 0.24, 0.22, i * 0.11);
+      });
+      launchConfetti();
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('btnToggleSound').textContent = soundEnabled ? 'Geluid: AAN 🔊' : 'Geluid: UIT 🔇';
+      if (soundEnabled) playPop();
+    }
+
+    function toggleSettings(open) {
+      playPop();
+      document.getElementById('settingsModal').classList.toggle('open', open);
+    }
+
+    /* ================= CONFETTI VIERING ================= */
+    function launchConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const colors = ['#ff4d8d', '#ffb703', '#2ec4b6', '#3a86ff', '#8ac926', '#9d4edd'];
+      const pieces = Array.from({ length: 75 }, () => ({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * 140,
+        r: 6 + Math.random() * 6,
+        c: colors[Math.floor(Math.random() * colors.length)],
+        vx: -2 + Math.random() * 4,
+        vy: 3 + Math.random() * 4,
+        rot: Math.random() * 360
+      }));
+      let frames = 0;
+      function step() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += 5;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.65);
+          ctx.restore();
+        });
+        frames++;
+        if (frames < 95) requestAnimationFrame(step);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* ================= NAVIGATIE ================= */
+    let navStack = ['screen-home'];
+    let balloonTimer = null;
+
+    function updateNavButtons() {
+      const current = navStack[navStack.length - 1];
+      const isHome = current === 'screen-home';
+      document.getElementById('btnBack').classList.toggle('hidden', isHome);
+    }
+
+    function openScreen(screenId) {
+      playPop();
+      if (balloonTimer) {
+        clearInterval(balloonTimer);
+        balloonTimer = null;
+      }
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+      if (navStack[navStack.length - 1] !== screenId) {
+        navStack.push(screenId);
+      }
+      updateNavButtons();
+    }
+
+    function goBack() {
+      if (navStack.length <= 1) return goHome();
+      playPop();
+      if (balloonTimer) {
+        clearInterval(balloonTimer);
+        balloonTimer = null;
+      }
+      navStack.pop();
+      const prev = navStack[navStack.length - 1];
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(prev).classList.add('active');
+      updateNavButtons();
+    }
+
+    function goHome() {
+      playPop();
+      if (balloonTimer) {
+        clearInterval(balloonTimer);
+        balloonTimer = null;
+      }
+      navStack = ['screen-home'];
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-home').classList.add('active');
+      updateNavButtons();
+    }
+
+    /* ================= 8 KLEURPLATEN SVG ================= */
+    const COLORING_ANIMALS = [
+      {
+        id: 'hondje', name: 'Hondje',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="52" cy="95" rx="18" ry="34" transform="rotate(15 52 95)" fill="#fff"/>
+          <ellipse cx="148" cy="95" rx="18" ry="34" transform="rotate(-15 148 95)" fill="#fff"/>
+          <circle cx="100" cy="100" r="46" fill="#fff"/>
+          <circle cx="84" cy="92" r="5" fill="#1d1e2c"/>
+          <circle cx="116" cy="92" r="5" fill="#1d1e2c"/>
+          <ellipse cx="100" cy="108" rx="9" ry="6" fill="#1d1e2c"/>
+          <path d="M88 120 Q100 132 112 120"/>
+          <path d="M95 125 Q100 140 105 125" fill="#fff"/>
+        </svg>`
+      },
+      {
+        id: 'katje', name: 'Katje',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="56,74 66,34 90,62" fill="#fff"/>
+          <polygon points="144,74 134,34 110,62" fill="#fff"/>
+          <circle cx="100" cy="104" r="44" fill="#fff"/>
+          <circle cx="84" cy="98" r="5" fill="#1d1e2c"/>
+          <circle cx="116" cy="98" r="5" fill="#1d1e2c"/>
+          <polygon points="95,110 105,110 100,116" fill="#1d1e2c"/>
+          <path d="M88 122 Q94 128 100 120 Q106 128 112 122"/>
+          <line x1="42" y1="104" x2="70" y2="108"/>
+          <line x1="42" y1="116" x2="70" y2="115"/>
+          <line x1="158" y1="104" x2="130" y2="108"/>
+          <line x1="158" y1="116" x2="130" y2="115"/>
+        </svg>`
+      },
+      {
+        id: 'konijntje', name: 'Konijntje',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="78" cy="52" rx="13" ry="36" transform="rotate(-8 78 52)" fill="#fff"/>
+          <ellipse cx="122" cy="52" rx="13" ry="36" transform="rotate(8 122 52)" fill="#fff"/>
+          <circle cx="100" cy="116" r="42" fill="#fff"/>
+          <circle cx="85" cy="108" r="5" fill="#1d1e2c"/>
+          <circle cx="115" cy="108" r="5" fill="#1d1e2c"/>
+          <ellipse cx="100" cy="120" rx="7" ry="5" fill="#1d1e2c"/>
+          <rect x="94" y="128" width="12" height="10" rx="2" fill="#fff"/>
+        </svg>`
+      },
+      {
+        id: 'paard', name: 'Paard',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="72,62 66,34 88,52" fill="#fff"/>
+          <polygon points="128,62 134,34 112,52" fill="#fff"/>
+          <path d="M68 62 Q100 44 132 62 L126 138 Q100 156 74 138 Z" fill="#fff"/>
+          <ellipse cx="100" cy="128" rx="24" ry="18" fill="#fff"/>
+          <circle cx="84" cy="86" r="5" fill="#1d1e2c"/>
+          <circle cx="116" cy="86" r="5" fill="#1d1e2c"/>
+          <circle cx="91" cy="126" r="3" fill="#1d1e2c"/>
+          <circle cx="109" cy="126" r="3" fill="#1d1e2c"/>
+        </svg>`
+      },
+      {
+        id: 'koe', name: 'Koe',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M66 56 Q56 36 74 44" fill="#fff"/>
+          <path d="M134 56 Q144 36 126 44" fill="#fff"/>
+          <ellipse cx="52" cy="78" rx="16" ry="9" fill="#fff"/>
+          <ellipse cx="148" cy="78" rx="16" ry="9" fill="#fff"/>
+          <rect x="62" y="54" width="76" height="92" rx="34" fill="#fff"/>
+          <ellipse cx="100" cy="124" rx="32" ry="20" fill="#fff"/>
+          <circle cx="84" cy="86" r="5" fill="#1d1e2c"/>
+          <circle cx="116" cy="86" r="5" fill="#1d1e2c"/>
+          <circle cx="89" cy="122" r="3.5" fill="#1d1e2c"/>
+          <circle cx="111" cy="122" r="3.5" fill="#1d1e2c"/>
+        </svg>`
+      },
+      {
+        id: 'vos', name: 'Vos',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="54,78 62,32 92,62" fill="#fff"/>
+          <polygon points="146,78 138,32 108,62" fill="#fff"/>
+          <path d="M52 96 Q100 48 148 96 Q128 144 100 148 Q72 144 52 96 Z" fill="#fff"/>
+          <circle cx="84" cy="98" r="5" fill="#1d1e2c"/>
+          <circle cx="116" cy="98" r="5" fill="#1d1e2c"/>
+          <circle cx="100" cy="124" r="6" fill="#1d1e2c"/>
+        </svg>`
+      },
+      {
+        id: 'olifant', name: 'Olifant',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="48" cy="96" rx="24" ry="34" fill="#fff"/>
+          <ellipse cx="152" cy="96" rx="24" ry="34" fill="#fff"/>
+          <circle cx="100" cy="96" r="42" fill="#fff"/>
+          <path d="M90 112 Q92 158 118 152 Q126 148 118 140 Q104 144 106 112" fill="#fff"/>
+          <circle cx="84" cy="88" r="5" fill="#1d1e2c"/>
+          <circle cx="116" cy="88" r="5" fill="#1d1e2c"/>
+        </svg>`
+      },
+      {
+        id: 'zebra', name: 'Zebra',
+        svg: `<svg viewBox="0 0 200 200" fill="none" stroke="#1d1e2c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="72,62 66,34 88,52" fill="#fff"/>
+          <polygon points="128,62 134,34 112,52" fill="#fff"/>
+          <path d="M68 62 Q100 44 132 62 L126 138 Q100 156 74 138 Z" fill="#fff"/>
+          <line x1="70" y1="76" x2="88" y2="80"/>
+          <line x1="130" y1="76" x2="112" y2="80"/>
+          <line x1="72" y1="98" x2="90" y2="100"/>
+          <line x1="128" y1="98" x2="110" y2="100"/>
+          <ellipse cx="100" cy="128" rx="24" ry="18" fill="#fff"/>
+          <circle cx="85" cy="88" r="5" fill="#1d1e2c"/>
+          <circle cx="115" cy="88" r="5" fill="#1d1e2c"/>
+        </svg>`
+      }
+    ];
+
+    function buildColoringList() {
+      const grid = document.getElementById('coloringListGrid');
+      grid.innerHTML = '';
+      COLORING_ANIMALS.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'game-card theme-pink';
+        card.innerHTML = `
+          <div class="glossy-circle coloring-thumb">${item.svg}</div>
+          <div class="pill-label">${item.name}</div>
+        `;
+        card.onclick = () => openCanvasMode(item);
+        grid.appendChild(card);
+      });
+    }
+
+    /* ================= TEKENEN & KLEUREN CANVAS ================= */
+    const PALETTE_COLORS = ['#e63946', '#ff9f1c', '#ffbe0b', '#38c958', '#2ec4b6', '#3a86ff', '#9d4edd', '#ff4d8d', '#8d5524', '#2b2d42'];
+    let currentColor = PALETTE_COLORS[0];
+    let brushSize = 14;
+    let isErasing = false;
+    let isDrawing = false;
+    let lastPt = null;
+
+    function buildPalette() {
+      const bar = document.getElementById('paletteBar');
+      bar.innerHTML = '';
+      PALETTE_COLORS.forEach((col, idx) => {
+        const sw = document.createElement('button');
+        sw.className = 'color-swatch' + (idx === 0 ? ' selected' : '');
+        sw.style.background = col;
+        sw.onclick = () => {
+          playPop();
+          isErasing = false;
+          currentColor = col;
+          document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+          sw.classList.add('selected');
+          document.getElementById('btnEraser').classList.remove('active');
+        };
+        bar.appendChild(sw);
+      });
+
+      const sizes = [
+        { label: 'Dun', size: 7 },
+        { label: 'Dik', size: 18 }
+      ];
+      sizes.forEach((s, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tool-chip' + (i === 1 ? ' active' : '');
+        btn.textContent = s.label;
+        btn.onclick = () => {
+          playPop();
+          brushSize = s.size;
+          bar.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+        };
+        btn.classList.add('size-chip');
+        bar.appendChild(btn);
+      });
+
+      const eraser = document.createElement('button');
+      eraser.id = 'btnEraser';
+      eraser.className = 'tool-chip';
+      eraser.textContent = 'Gum';
+      eraser.onclick = () => {
+        playPop();
+        isErasing = !isErasing;
+        eraser.classList.toggle('active', isErasing);
+      };
+      bar.appendChild(eraser);
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'tool-chip';
+      clearBtn.textContent = 'Wis alles';
+      clearBtn.onclick = () => {
+        playPop();
+        clearDrawingCanvas();
+      };
+      bar.appendChild(clearBtn);
+    }
+
+    function openCanvasMode(coloringItem) {
+      openScreen('screen-canvas');
+      const overlay = document.getElementById('coloringOverlay');
+      overlay.innerHTML = coloringItem ? coloringItem.svg : '';
+      requestAnimationFrame(() => resizeDrawingCanvas());
+    }
+
+    function resizeDrawingCanvas() {
+      const frame = document.getElementById('canvasFrame');
+      const canvas = document.getElementById('drawCanvas');
+      const rect = frame.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+    }
+
+    function clearDrawingCanvas() {
+      const frame = document.getElementById('canvasFrame');
+      const canvas = document.getElementById('drawCanvas');
+      const rect = frame.getBoundingClientRect();
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+    }
+
+    function initCanvasEvents() {
+      const canvas = document.getElementById('drawCanvas');
+      const ctx = canvas.getContext('2d');
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        canvas.setPointerCapture(e.pointerId);
+        isDrawing = true;
+        lastPt = getPos(e);
+        ctx.beginPath();
+        ctx.arc(lastPt.x, lastPt.y, brushSize / 2, 0, Math.PI * 2);
+        ctx.fillStyle = isErasing ? '#ffffff' : currentColor;
+        ctx.fill();
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (!isDrawing || !lastPt) return;
+        e.preventDefault();
+        const pt = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(lastPt.x, lastPt.y);
+        ctx.lineTo(pt.x, pt.y);
+        ctx.strokeStyle = isErasing ? '#ffffff' : currentColor;
+        ctx.lineWidth = brushSize;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+        lastPt = pt;
+      });
+
+      const endDraw = () => {
+        isDrawing = false;
+        lastPt = null;
+      };
+      canvas.addEventListener('pointerup', endDraw);
+      canvas.addEventListener('pointercancel', endDraw);
+    }
+
+    /* ================= ALGEMENE FINGER-DRAG HELPER ================= */
+    function attachPointerDrag(el, itemKey, getTargetsFn, onMatchedFn) {
+      el.addEventListener('pointerdown', (e) => {
+        if (el.classList.contains('used')) return;
+        e.preventDefault();
+        playPop();
+        const clone = el.cloneNode(true);
+        clone.classList.add('floating-clone');
+        clone.style.width = el.offsetWidth + 'px';
+        clone.style.height = el.offsetHeight + 'px';
+        clone.style.left = e.clientX + 'px';
+        clone.style.top = e.clientY + 'px';
+        document.body.appendChild(clone);
+        el.style.opacity = '0.35';
+
+        function onMove(ev) {
+          ev.preventDefault();
+          clone.style.left = ev.clientX + 'px';
+          clone.style.top = ev.clientY + 'px';
+          getTargetsFn().forEach(slot => {
+            const r = slot.getBoundingClientRect();
+            const inside = ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
+            slot.classList.toggle('highlight', inside && !slot.classList.contains('matched') && !slot.classList.contains('filled'));
+          });
+        }
+
+        function onUp(ev) {
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', onUp);
+          window.removeEventListener('pointercancel', onUp);
+          clone.remove();
+          el.style.opacity = '';
+
+          let matchedSlot = null;
+          getTargetsFn().forEach(slot => {
+            slot.classList.remove('highlight');
+            const r = slot.getBoundingClientRect();
+            const inside = ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
+            if (inside && slot.dataset.key === itemKey && !slot.classList.contains('matched') && !slot.classList.contains('filled')) {
+              matchedSlot = slot;
+            }
+          });
+
+          if (matchedSlot) {
+            el.classList.add('used');
+            onMatchedFn(matchedSlot);
+          }
+        }
+
+        window.addEventListener('pointermove', onMove, { passive: false });
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+      });
+    }
+
+    /* ================= SPEL 2: VERSLEEP DIEREN ================= */
+    const DRAG_ANIMALS_POOL = [
+      { key: 'olifant', name: 'Olifant', emoji: '🐘' },
+      { key: 'leeuw', name: 'Leeuw', emoji: '🦁' },
+      { key: 'giraf', name: 'Giraf', emoji: '🦒' },
+      { key: 'zebra', name: 'Zebra', emoji: '🦓' },
+      { key: 'vos', name: 'Vos', emoji: '🦊' },
+      { key: 'koe', name: 'Koe', emoji: '🐮' }
+    ];
+
+    function startDragAnimals() {
+      openScreen('screen-drag-animals');
+      const round = [...DRAG_ANIMALS_POOL].sort(() => Math.random() - 0.5).slice(0, 4);
+      const shuffled = [...round].sort(() => Math.random() - 0.5);
+      const targetsEl = document.getElementById('animalTargets');
+      const dragsEl = document.getElementById('animalDraggables');
+      targetsEl.innerHTML = '';
+      dragsEl.innerHTML = '';
+      let matchedCount = 0;
+
+      round.forEach(item => {
+        const slot = document.createElement('div');
+        slot.className = 'drop-slot';
+        slot.dataset.key = item.key;
+        slot.innerHTML = `<span class="slot-silhouette" style="font-size:3rem;">${item.emoji}</span><span class="slot-label">${item.name}</span>`;
+        targetsEl.appendChild(slot);
+      });
+
+      shuffled.forEach(item => {
+        const drag = document.createElement('div');
+        drag.className = 'drag-item';
+        drag.innerHTML = `<span style="font-size:3rem;">${item.emoji}</span>`;
+        attachPointerDrag(drag, item.key, () => [...targetsEl.querySelectorAll('.drop-slot')], (slot) => {
+          slot.classList.add('matched');
+          slot.innerHTML = `<span style="font-size:3.2rem;">${item.emoji}</span><span class="slot-label" style="color:#1e7e34;">${item.name} ✓</span>`;
+          playSuccess();
+          matchedCount++;
+          if (matchedCount === round.length) {
+            playFanfare();
+            setTimeout(startDragAnimals, 1600);
+          }
+        });
+        dragsEl.appendChild(drag);
+      });
+    }
+
+    /* ================= SPEL 3: DIERENPUZZEL (2x2) ================= */
+    const PUZZLE_ANIMALS = [
+      { name: 'Leeuw', bg: '#ffe07d', emoji: '🦁' },
+      { name: 'Olifant', bg: '#bde0fe', emoji: '🐘' },
+      { name: 'Giraf', bg: '#ffd6a5', emoji: '🦒' },
+      { name: 'Vos', bg: '#ffccd5', emoji: '🦊' }
+    ];
+
+    function makePuzzlePieceGraphic(animal, quadIdx) {
+      const ox = (quadIdx % 2) * -100;
+      const oy = Math.floor(quadIdx / 2) * -100;
+      return `
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <g transform="translate(${ox}, ${oy})">
+            <rect x="0" y="0" width="200" height="200" fill="${animal.bg}"/>
+            <circle cx="100" cy="100" r="76" fill="#ffffff" stroke="#ff9f1c" stroke-width="6"/>
+            <text x="100" y="132" text-anchor="middle" font-size="112">${animal.emoji}</text>
+          </g>
+        </svg>
+      `;
+    }
+
+    function startAnimalPuzzle() {
+      openScreen('screen-puzzle');
+      const animal = PUZZLE_ANIMALS[Math.floor(Math.random() * PUZZLE_ANIMALS.length)];
+      document.getElementById('puzzleTitle').textContent = `Puzzel: ${animal.name}`;
+      const board = document.getElementById('puzzleBoard');
+      const tray = document.getElementById('puzzleTray');
+      board.innerHTML = '';
+      tray.innerHTML = '';
+      let filled = 0;
+
+      for (let i = 0; i < 4; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'puzzle-cell';
+        cell.dataset.key = String(i);
+        cell.innerHTML = `<span style="font-weight:900; color:#0088e8; opacity:0.45;">${i + 1}</span>`;
+        board.appendChild(cell);
+      }
+
+      [0, 1, 2, 3].sort(() => Math.random() - 0.5).forEach(quad => {
+        const piece = document.createElement('div');
+        piece.className = 'puzzle-piece';
+        piece.innerHTML = makePuzzlePieceGraphic(animal, quad);
+        attachPointerDrag(piece, String(quad), () => [...board.querySelectorAll('.puzzle-cell')], (cell) => {
+          cell.classList.add('filled');
+          cell.innerHTML = makePuzzlePieceGraphic(animal, quad);
+          playSuccess();
+          filled++;
+          if (filled === 4) {
+            playFanfare();
+            setTimeout(startAnimalPuzzle, 1700);
+          }
+        });
+        tray.appendChild(piece);
+      });
+    }
+
+    /* ================= SPEL 4: MEMORY ================= */
+    const MEMORY_ICONS = ['🦊', '🐰', '🐻', '🐶', '🐱', '🦁'];
+
+    function startMemory() {
+      openScreen('screen-memory');
+      const grid = document.getElementById('memoryGrid');
+      grid.innerHTML = '';
+      const deck = [...MEMORY_ICONS, ...MEMORY_ICONS].sort(() => Math.random() - 0.5);
+      let flipped = [];
+      let lock = false;
+      let pairs = 0;
+
+      deck.forEach(icon => {
+        const card = document.createElement('button');
+        card.className = 'mem-card';
+        card.textContent = '?';
+        card.style.color = '#fff';
+        card.style.fontWeight = '900';
+
+        card.onclick = () => {
+          if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+          playPop();
+          card.classList.add('flipped');
+          card.textContent = icon;
+          flipped.push({ card, icon });
+
+          if (flipped.length === 2) {
+            lock = true;
+            const [a, b] = flipped;
+            if (a.icon === b.icon) {
+              setTimeout(() => {
+                a.card.classList.add('matched');
+                b.card.classList.add('matched');
+                playSuccess();
+                flipped = [];
+                lock = false;
+                pairs++;
+                if (pairs === MEMORY_ICONS.length) {
+                  playFanfare();
+                  setTimeout(startMemory, 1800);
+                }
+              }, 350);
+            } else {
+              setTimeout(() => {
+                a.card.classList.remove('flipped');
+                b.card.classList.remove('flipped');
+                a.card.textContent = '?';
+                b.card.textContent = '?';
+                flipped = [];
+                lock = false;
+              }, 750);
+            }
+          }
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    /* ================= SPEL 5: VERSLEEP IN HUIS ================= */
+    const HOUSE_ITEMS = [
+      { key: 'zetel', name: 'Blauwe zetel', emoji: '🛋️' },
+      { key: 'bed', name: 'Bed', emoji: '🛏️' },
+      { key: 'lamp', name: 'Lamp', emoji: '🛋️', customSvg: `<svg width="56" height="56" viewBox="0 0 64 64"><polygon points="18,28 46,28 38,10 26,10" fill="#ffbe0b" stroke="#2b2d42" stroke-width="3"/><line x1="32" y1="28" x2="32" y2="52" stroke="#5c3a21" stroke-width="4"/><rect x="20" y="52" width="24" height="6" rx="3" fill="#5c3a21"/></svg>` },
+      { key: 'bad', name: 'Badkuip', emoji: '🛁' }
+    ];
+
+    function renderHouseIcon(item) {
+      if (item.customSvg) return item.customSvg;
+      return `<span style="font-size:3rem;">${item.emoji}</span>`;
+    }
+
+    function startDragHouse() {
+      openScreen('screen-drag-house');
+      const targetsEl = document.getElementById('houseTargets');
+      const dragsEl = document.getElementById('houseDraggables');
+      targetsEl.innerHTML = '';
+      dragsEl.innerHTML = '';
+      let placed = 0;
+
+      HOUSE_ITEMS.forEach(item => {
+        const slot = document.createElement('div');
+        slot.className = 'drop-slot';
+        slot.dataset.key = item.key;
+        slot.innerHTML = `<div class="slot-silhouette">${renderHouseIcon(item)}</div><span class="slot-label">${item.name}</span>`;
+        targetsEl.appendChild(slot);
+      });
+
+      [...HOUSE_ITEMS].sort(() => Math.random() - 0.5).forEach(item => {
+        const drag = document.createElement('div');
+        drag.className = 'drag-item';
+        drag.style.borderColor = '#9d4edd';
+        drag.innerHTML = renderHouseIcon(item);
+        attachPointerDrag(drag, item.key, () => [...targetsEl.querySelectorAll('.drop-slot')], (slot) => {
+          slot.classList.add('matched');
+          slot.innerHTML = `${renderHouseIcon(item)}<span class="slot-label" style="color:#5a189a;">${item.name} ✓</span>`;
+          playSuccess();
+          placed++;
+          if (placed === HOUSE_ITEMS.length) {
+            playFanfare();
+            setTimeout(startDragHouse, 1600);
+          }
+        });
+        dragsEl.appendChild(drag);
+      });
+    }
+
+    /* ================= SPEL 6: BALLONNEN POPPEN ================= */
+    const BALLOON_COLORS = ['#ef233c', '#ff9f1c', '#2ec4b6', '#3a86ff', '#9d4edd', '#38c958'];
+    let balloonTargetNum = 1;
+    let balloonScore = 0;
+
+    function startBalloons() {
+      openScreen('screen-balloons');
+      const arena = document.getElementById('balloonArena');
+      arena.querySelectorAll('.balloon').forEach(b => b.remove());
+      balloonTargetNum = 1;
+      balloonScore = 0;
+      updateBalloonHud();
+
+      spawnBalloon(true);
+      spawnBalloon(false);
+      balloonTimer = setInterval(() => {
+        if (arena.querySelectorAll('.balloon').length < 6) {
+          const hasTarget = [...arena.querySelectorAll('.balloon')].some(b => Number(b.dataset.num) === balloonTargetNum);
+          spawnBalloon(!hasTarget);
+        }
+      }, 1150);
+    }
+
+    function updateBalloonHud() {
+      document.getElementById('balloonTargetPill').textContent = `Tik op cijfer: ${balloonTargetNum}`;
+      document.getElementById('balloonScorePill').textContent = `Score: ${balloonScore}`;
+    }
+
+    function spawnBalloon(forceTarget) {
+      const arena = document.getElementById('balloonArena');
+      const num = forceTarget ? balloonTargetNum : (1 + Math.floor(Math.random() * 5));
+      const b = document.createElement('div');
+      b.className = 'balloon';
+      b.dataset.num = String(num);
+      b.textContent = String(num);
+      b.style.background = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+      const maxX = Math.max(20, arena.clientWidth - 96);
+      b.style.left = (12 + Math.random() * maxX) + 'px';
+      let y = arena.clientHeight + 20;
+      b.style.top = y + 'px';
+
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (Number(b.dataset.num) === balloonTargetNum) {
+          playSuccess();
+          b.remove();
+          balloonScore += 10;
+          balloonTargetNum = balloonTargetNum >= 5 ? 1 : balloonTargetNum + 1;
+          updateBalloonHud();
+          if (balloonScore % 50 === 0) playFanfare();
+        } else {
+          playTone(220, 'sawtooth', 0.14, 0.15);
+          b.style.transform = 'scale(0.88)';
+          setTimeout(() => { if (b.parentNode) b.style.transform = ''; }, 140);
+        }
+      });
+
+      arena.appendChild(b);
+
+      const speed = 1.3 + Math.random() * 1.1;
+      function rise() {
+        if (!b.parentNode) return;
+        y -= speed;
+        b.style.top = y + 'px';
+        if (y < -120) {
+          b.remove();
+        } else {
+          requestAnimationFrame(rise);
+        }
+      }
+      requestAnimationFrame(rise);
+    }
+
+    /* ================= INITIALISATIE ================= */
+    buildColoringList();
+    buildPalette();
+    initCanvasEvents();
+    window.addEventListener('resize', () => {
+      if (document.getElementById('screen-canvas').classList.contains('active')) {
+        resizeDrawingCanvas();
+      }
+    });
+  </script>
+</body>
+</html>
